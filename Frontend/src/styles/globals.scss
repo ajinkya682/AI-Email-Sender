@@ -1,0 +1,55 @@
+@use "variables" as *;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: $font-primary;
+  background-color: $bg-color;
+  color: $text-primary;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: $font-primary;
+}
+
+input,
+textarea {
+  font-family: $font-primary;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: $bg-color;
+}
+::-webkit-scrollbar-thumb {
+  background: $border-color;
+  border-radius: $radius-sm;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: $text-secondary;
+}
+
+/* Layout overrides */
+#root {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}

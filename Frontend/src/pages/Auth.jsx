@@ -47,8 +47,10 @@ const Auth = () => {
         >
           <div className="auth-header">
             <div className="logo">
-              <Sparkles className="icon-sparkle" size={28} />
-              <span>AI Assistant</span>
+              <div className="logo-icon">
+                <Sparkles size={20} />
+              </div>
+              <span className="logo-text">AI Assistant</span>
             </div>
             <h2>{isLogin ? "Welcome back" : "Create an account"}</h2>
             <p>

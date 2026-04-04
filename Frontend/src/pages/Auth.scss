@@ -1,156 +1,247 @@
 @use "../styles/variables" as *;
 
+/* ============================================
+   AUTH LAYOUT
+   ============================================ */
 .auth-container {
   display: flex;
   height: 100vh;
   width: 100vw;
-  background-color: $bg-color;
+  background-color: $surface;
+  position: relative;
+  overflow: hidden;
+
+  // Ambient background orb
+  &::before {
+    content: '';
+    position: absolute;
+    top: -20%;
+    left: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba($primary, 0.12) 0%, transparent 65%);
+    pointer-events: none;
+    border-radius: 50%;
+    animation: orbPulse 8s ease-in-out infinite alternate;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -20%;
+    right: -5%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba($primary, 0.07) 0%, transparent 65%);
+    pointer-events: none;
+    border-radius: 50%;
+    animation: orbPulse 10s ease-in-out infinite alternate-reverse;
+  }
 }
 
+@keyframes orbPulse {
+  from { transform: scale(1) translate(0, 0); }
+  to   { transform: scale(1.15) translate(2%, -3%); }
+}
+
+/* Auth Form Side */
 .auth-wrapper {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 2rem;
+  padding: $spacing-8;
+  position: relative;
+  z-index: 1;
 }
 
+/* Glassmorphic Card */
 .auth-box {
   width: 100%;
-  max-width: 400px;
-  background-color: $surface-color;
-  padding: 2.5rem;
-  border-radius: $radius-lg;
-  border: 1px solid $border-color;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  max-width: 420px;
+  background: rgba($surface-container, 0.7);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  padding: $spacing-10;
+  border-radius: $radius-xl;
+  border: 1px solid $outline-variant;
+  box-shadow: $shadow-ambient;
+  animation: cardIn 0.4s ease-out both;
 
   .auth-header {
-    margin-bottom: 2rem;
+    margin-bottom: $spacing-8;
     text-align: center;
 
     .logo {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.5rem;
-      margin-bottom: 1.5rem;
-      font-weight: 700;
-      font-size: 1.25rem;
+      gap: $spacing-3;
+      margin-bottom: $spacing-6;
+    }
 
-      .icon-sparkle {
-        color: $accent-color;
-      }
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: $radius-md;
+      background: $gradient-primary;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: $on-primary;
+      box-shadow: 0 6px 20px rgba($primary, 0.35);
+    }
+
+    .logo-text {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: $on-surface;
+      letter-spacing: -0.02em;
     }
 
     h2 {
-      font-size: 1.75rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      color: white;
+      font-size: 1.625rem;
+      font-weight: 700;
+      color: $on-surface;
+      letter-spacing: -0.02em;
+      margin-bottom: $spacing-2;
     }
 
     p {
-      color: $text-secondary;
-      font-size: 0.9rem;
+      color: $on-surface-variant;
+      font-size: 0.875rem;
+      line-height: 1.6;
     }
   }
 
   .error-message {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem;
-    background-color: rgba($error-color, 0.1);
-    color: $error-color;
-    border: 1px solid rgba($error-color, 0.2);
+    gap: $spacing-2;
+    padding: $spacing-3 $spacing-4;
+    background-color: rgba($error, 0.08);
+    color: $error;
+    border: 1px solid rgba($error, 0.2);
     border-radius: $radius-sm;
-    margin-bottom: 1.5rem;
-    font-size: 0.9rem;
+    margin-bottom: $spacing-5;
+    font-size: 0.875rem;
+    line-height: 1.5;
   }
+}
 
-  .auth-form {
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Auth Form */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+
+  .input-group {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: $spacing-2;
 
-    .input-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-
-      label {
-        font-size: 0.85rem;
-        font-weight: 500;
-        color: $text-secondary;
-      }
-
-      input {
-        padding: 0.75rem 1rem;
-        background-color: rgba(0, 0, 0, 0.2);
-        border: 1px solid $border-color;
-        border-radius: $radius-md;
-        color: white;
-        transition: $transition-smooth;
-        outline: none;
-
-        &:focus {
-          border-color: $accent-color;
-          box-shadow: 0 0 0 2px rgba($accent-color, 0.2);
-        }
-      }
+    label {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: $on-surface-variant;
+      letter-spacing: 0.01em;
     }
 
-    .submit-btn {
-      margin-top: 1rem;
-      padding: 0.875rem;
-      background-color: $accent-color;
-      color: white;
+    input {
+      padding: $spacing-3 $spacing-4;
+      background-color: $surface-container-lowest;
+      border: 1px solid $outline-variant; // Ghost border at 20% opacity
       border-radius: $radius-md;
-      font-weight: 600;
-      font-size: 1rem;
+      color: $on-surface;
+      font-size: 0.9375rem;
       transition: $transition-smooth;
+      outline: none;
 
-      &:hover:not(:disabled) {
-        background-color: $accent-hover;
+      &::placeholder {
+        color: $on-surface-dim;
       }
 
-      &:disabled {
-        opacity: 0.7;
-        cursor: not-allowed;
+      &:focus {
+        border-color: $outline-focus; // 40% opacity on focus
+        box-shadow: 0 0 0 4px rgba($primary, 0.08); // Primary outer glow
       }
     }
   }
 
-  .auth-footer {
-    margin-top: 2rem;
-    text-align: center;
-    font-size: 0.9rem;
-    color: $text-secondary;
+  .submit-btn {
+    margin-top: $spacing-2;
+    padding: $spacing-4;
+    background: $gradient-primary;
+    color: $on-primary;
+    border-radius: $radius-md;
+    font-weight: 700;
+    font-size: 0.9375rem;
+    letter-spacing: 0.01em;
+    transition: $transition-fast;
+    box-shadow: 0 4px 18px rgba($primary, 0.3);
 
-    .toggle-btn {
-      color: $accent-color;
-      font-weight: 600;
-      margin-left: 0.5rem;
+    &:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 24px rgba($primary, 0.45);
+    }
 
-      &:hover {
-        text-decoration: underline;
-      }
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      box-shadow: none;
     }
   }
 }
 
+.auth-footer {
+  margin-top: $spacing-6;
+  text-align: center;
+  font-size: 0.875rem;
+  color: $on-surface-muted;
+
+  .toggle-btn {
+    color: $primary-container;
+    font-weight: 600;
+    margin-left: $spacing-1;
+    transition: $transition-fast;
+
+    &:hover {
+      color: $primary;
+      text-decoration: underline;
+    }
+  }
+}
+
+/* Visual Side Panel */
 .auth-visual {
   flex: 1;
   background: linear-gradient(
-    135deg,
-    rgba($accent-color, 0.1) 0%,
-    rgba($bg-color, 0) 100%
+    140deg,
+    rgba($primary, 0.06) 0%,
+    rgba($surface, 0) 60%,
+    rgba($primary, 0.04) 100%
   );
   display: flex;
   align-items: center;
   justify-content: center;
-  border-left: 1px solid $border-color;
+  position: relative;
+  overflow: hidden;
 
   @media (max-width: 768px) {
     display: none;
@@ -158,26 +249,40 @@
 
   .visual-content {
     text-align: center;
-    max-width: 400px;
+    max-width: 420px;
+    padding: $spacing-8;
+    position: relative;
+    z-index: 1;
 
     .mail-icon {
-      color: $accent-color;
-      margin-bottom: 1.5rem;
-      opacity: 0.8;
+      color: $primary;
+      margin-bottom: $spacing-6;
+      filter: drop-shadow(0 0 30px rgba($primary, 0.4));
+      animation: iconFloat 4s ease-in-out infinite;
     }
 
     h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin-bottom: 1rem;
-      line-height: 1.2;
-      color: white;
+      font-size: 2.75rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: $spacing-4;
+      color: $on-surface;
+      background: linear-gradient(135deg, $on-surface 30%, $on-surface-variant 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     p {
-      color: $text-secondary;
-      font-size: 1.1rem;
-      line-height: 1.6;
+      color: $on-surface-variant;
+      font-size: 1rem;
+      line-height: 1.7;
     }
   }
+}
+
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }

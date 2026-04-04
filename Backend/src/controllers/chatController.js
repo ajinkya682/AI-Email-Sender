@@ -140,3 +140,31 @@ export const sendMessage = async (req, res, next) => {
     next(err);
   }
 };
+
+// @desc    Delete a conversation and its messages
+// @route   DELETE /api/chat/conversations/:id
+// @access  Private
+export const deleteConversation = async (req, res, next) => {
+  try {
+    const conversation = await Conversation.findById(req.params.id);
+
+    if (!conversation) {
+      return res.status(404).json({ success: false, error: 'Conversation not found' });
+    }
+
+    // Make sure the conversation belongs to the requesting user
+    if (conversation.user.toString() !== req.user.id) {
+      return res.status(403).json({ success: false, error: 'Not authorized' });
+    }
+
+    // Cascade delete all messages in this conversation
+    await Message.deleteMany({ conversation: req.params.id });
+
+    // Delete the conversation itself
+    await Conversation.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({ success: true, data: {} });
+  } catch (err) {
+    next(err);
+  }
+};

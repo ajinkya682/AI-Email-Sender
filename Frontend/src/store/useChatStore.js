@@ -15,6 +15,7 @@ export const useChatStore = create((set, get) => ({
   messages: [],
   activeConversationId: null,
   isLoading: false,
+  deletingId: null, // tracks which conversation is pending delete confirm
 
   fetchConversations: async () => {
     try {
@@ -58,7 +59,9 @@ export const useChatStore = create((set, get) => ({
       // Ensure active conversation aligns
       set((state) => ({
         activeConversationId: conversationId,
-        messages: state.messages.map(m => m.loading ? aiMessage : m).map(m => m._id === tempUserMsg._id ? userMessage : m)
+        messages: state.messages
+          .map(m => m.loading ? aiMessage : m)
+          .map(m => m._id === tempUserMsg._id ? userMessage : m)
       }));
       
       // Update conversations list if it's new
@@ -74,6 +77,26 @@ export const useChatStore = create((set, get) => ({
       }));
     }
   },
+
+  deleteConversation: async (id) => {
+    try {
+      await axios.delete(`${API_URL}/chat/conversations/${id}`, getAuthHeaders());
+      set((state) => {
+        const wasActive = state.activeConversationId === id;
+        return {
+          conversations: state.conversations.filter(c => c._id !== id),
+          activeConversationId: wasActive ? null : state.activeConversationId,
+          messages: wasActive ? [] : state.messages,
+          deletingId: null,
+        };
+      });
+    } catch (err) {
+      console.error(err);
+      set({ deletingId: null });
+    }
+  },
+
+  setDeletingId: (id) => set({ deletingId: id }),
 
   clearActiveConversation: () => set({ activeConversationId: null, messages: [] })
 }));

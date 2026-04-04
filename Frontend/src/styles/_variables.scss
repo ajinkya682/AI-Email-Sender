@@ -1,17 +1,68 @@
-$bg-color: #0f111a;
-$surface-color: #1a1d27;
-$border-color: #2e3240;
-$text-primary: #e2e8f0;
-$text-secondary: #94a3b8;
-$accent-color: #3b82f6;
-$accent-hover: #2563eb;
-$success-color: #10b981;
-$error-color: #ef4444;
+// ============================================
+// Digital Curator Design System — Tokens
+// ============================================
 
+// --- Surfaces ---
+$surface:                  #111317;
+$surface-container-lowest: #0C0E12;
+$surface-container-low:    #171A1F;
+$surface-container:        #1E2128;
+$surface-container-high:   #282A2E;
+$surface-container-highest:#333539;
+$surface-variant:          #2A2C31;
+
+// --- Primary (Sunset Orange) ---
+$primary:                  #FF6A00;
+$primary-container:        #FF8C3A;
+$primary-light:            #FFB694;
+$on-primary:               #FFFFFF;
+$primary-glow:             rgba(255, 106, 0, 0.2);
+
+// --- Text ---
+$on-surface:               #E8EAF0;
+$on-surface-variant:       #E2BFB0;
+$on-surface-muted:         #8A8F9A;
+$on-surface-dim:           #5A5F6A;
+
+// --- Outline / Border ---
+$outline-variant:          rgba(90, 65, 54, 0.2);  // ghost border (20% opacity)
+$outline-focus:            rgba(90, 65, 54, 0.4);  // focus ghost border (40%)
+
+// --- Semantic ---
+$success:                  #22C55E;
+$error:                    #EF4444;
+$warning:                  #F59E0B;
+
+// --- Gradient ---
+$gradient-primary: linear-gradient(135deg, #FF6A00 0%, #FFB694 100%);
+$gradient-surface: linear-gradient(135deg, rgba(255, 106, 0, 0.08) 0%, rgba(17, 19, 23, 0) 100%);
+
+// --- Radius ---
+$radius-xs:  4px;
+$radius-sm:  8px;
+$radius-md:  12px;
+$radius-lg:  16px;
+$radius-xl:  24px;
+$radius-full: 9999px;
+
+// --- Spacing ---
+$spacing-1: 0.25rem;
+$spacing-2: 0.5rem;
+$spacing-3: 0.75rem;
+$spacing-4: 1rem;
+$spacing-5: 1.25rem;
+$spacing-6: 1.5rem;
+$spacing-8: 2rem;
+$spacing-10: 2.5rem;
+
+// --- Typography ---
 $font-primary: 'Inter', system-ui, -apple-system, sans-serif;
 
-$radius-sm: 6px;
-$radius-md: 12px;
-$radius-lg: 16px;
+// --- Transitions ---
+$transition-smooth:  all 0.2s ease-in-out;
+$transition-fast:    all 0.15s ease;
+$transition-slow:    all 0.35s ease;
 
-$transition-smooth: all 0.2s ease-in-out;
+// --- Ambient Shadows ---
+$shadow-ambient: 0 20px 60px -10px rgba(0, 0, 0, 0.4);
+$shadow-primary-glow: 0 0 0 4px rgba(255, 106, 0, 0.15);

@@ -25,11 +25,14 @@ if (!process.env.MONGODB_URI) {
 
 const app = express();
 
-// Enable CORS (prefer env-specified frontend, fall back to localhost)
-const allowedOrigins = [process.env.FRONTEND_URL, "http://localhost:5173"].filter(Boolean);
+// Enable CORS (allow any origin to support Vercel deployments and localhost)
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      // Reflect the origin for any incoming request to bypass CORS issues, 
+      // or allow it if no origin (like curl)
+      callback(null, origin || true);
+    },
     credentials: true,
   }),
 );

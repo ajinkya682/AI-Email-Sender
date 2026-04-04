@@ -1,8 +1,9 @@
 import Conversation from '../models/Conversation.js';
 import Message from '../models/Message.js';
 import EmailLog from '../models/EmailLog.js';
-import { analyzeIntent, doWebSearch, draftEmail, generateChatResponse } from '../services/aiService.js';
+import { analyzeIntent, doWebSearch, draftEmail, draftWhatsAppMessage, generateChatResponse } from '../services/aiService.js';
 import { sendEmail } from '../services/emailService.js';
+import { sendWhatsAppMessage } from '../services/whatsappService.js';
 
 // @desc    Get all conversations for user
 // @route   GET /api/chat/conversations
@@ -54,8 +55,12 @@ export const sendMessage = async (req, res, next) => {
       content
     });
 
+    // Assemble history for context
+    const historyMsg = await Message.find({ conversation: convId }).sort('createdAt').limit(10);
+    const historyStr = historyMsg.map(m => `${m.role.toUpperCase()}: ${m.content}`).join('\n');
+
     // 1. Analyze Intent
-    const intentData = await analyzeIntent(content);
+    const intentData = await analyzeIntent(content, historyStr);
     
     let aiResponseContent = '';
     let aiMetadata = { intent: intentData.intent };
@@ -106,12 +111,34 @@ export const sendMessage = async (req, res, next) => {
         });
       }
 
+    } else if (intentData.intent === 'SEND_WHATSAPP' && intentData.recipientPhone) {
+      // It's a WhatsApp command!
+      try {
+        const topicOrContent = intentData.messageContent || intentData.topic || content;
+        
+        // Draft WhatsApp Message
+        const generatedMessage = await draftWhatsAppMessage(topicOrContent, historyStr, intentData.recipientPhone);
+
+        const result = await sendWhatsAppMessage({
+          to: intentData.recipientPhone,
+          message: generatedMessage
+        });
+
+        if (result.success) {
+          aiResponseContent = `✅ Successfully sent a WhatsApp message to **${intentData.recipientPhone}**.\n\n**Message:** ${generatedMessage}`;
+          aiMetadata.whatsappStatus = 'sent';
+        } else {
+          aiResponseContent = `❌ Failed to send WhatsApp message to ${intentData.recipientPhone}. Error: ${result.message}`;
+          aiMetadata.whatsappStatus = 'failed';
+        }
+      } catch (err) {
+        console.error('WhatsApp sending failed:', err);
+        aiResponseContent = `❌ Failed to send WhatsApp message to ${intentData.recipientPhone}. Error: ${err.message}`;
+        aiMetadata.whatsappStatus = 'failed';
+      }
+
     } else {
       // Standard Chat
-      // Assemble history
-      const historyMsg = await Message.find({ conversation: convId }).sort('createdAt').limit(10);
-      const historyStr = historyMsg.map(m => `${m.role.toUpperCase()}: ${m.content}`).join('\n');
-      
       // Get AI response
       aiResponseContent = await generateChatResponse(historyStr);
     }

@@ -38,27 +38,31 @@ const getModel = () => {
 };
 
 // ------------------ INTENT ------------------
-export const analyzeIntent = async (userInput) => {
+export const analyzeIntent = async (userInput, historyStr = "") => {
   const model = getModel();
 
   const parser = StructuredOutputParser.fromZodSchema(
     z.object({
-      intent: z.enum(["CHAT", "SEND_EMAIL"]),
+      intent: z.enum(["CHAT", "SEND_EMAIL", "SEND_WHATSAPP"]),
       recipientEmail: z.string().nullable(),
+      recipientPhone: z.string().nullable(),
       topic: z.string().nullable(),
       subject: z.string().nullable(),
+      messageContent: z.string().nullable(),
     }),
   );
 
   const prompt = new PromptTemplate({
-    template: `Classify the user input.
+    template: `Classify the user input. Use the conversation history for context if the user refers to previous messages (e.g. "send the same email", "yes, do it").
 
-Return JSON only.
+Conversation History:
+{history}
 
 User Input: {input}
 
+Return JSON only.
 {format_instructions}`,
-    inputVariables: ["input"],
+    inputVariables: ["input", "history"],
     partialVariables: {
       format_instructions: parser.getFormatInstructions(),
     },
@@ -66,7 +70,7 @@ User Input: {input}
 
   try {
     const chain = prompt.pipe(model).pipe(parser);
-    return await chain.invoke({ input: userInput });
+    return await chain.invoke({ input: userInput, history: historyStr });
   } catch (err) {
     console.error("Intent parsing error:", err);
 
@@ -74,8 +78,10 @@ User Input: {input}
     return {
       intent: "CHAT",
       recipientEmail: null,
+      recipientPhone: null,
       topic: userInput,
       subject: null,
+      messageContent: null,
     };
   }
 };
@@ -134,6 +140,37 @@ Sign as "AI Assistant".
     .replace(/```html/g, "")
     .replace(/```/g, "")
     .trim();
+};
+
+// ------------------ WHATSAPP ------------------
+export const draftWhatsAppMessage = async (topic, historyStr, recipient) => {
+  const model = getModel();
+
+  const safeTopic = topic || "General message";
+  const safeRecipient = recipient || "Recipient";
+
+  const prompt = PromptTemplate.fromTemplate(`
+Draft a professional WhatsApp message based on the user's request.
+
+User Requested Topic / Context: {topic}
+Conversation History:
+{history}
+Recipient: {recipient}
+
+Return ONLY the plain text message to be sent via WhatsApp.
+Keep it concise and appropriate for WhatsApp. Do not wrap in quotes or code blocks unless part of the message. Use standard emojis if appropriate.
+If the user asks to send "the same email", formulate the email's core message into a WhatsApp-friendly format.
+`);
+
+  const response = await prompt.pipe(model).invoke({
+    topic: safeTopic,
+    history: historyStr || "N/A",
+    recipient: safeRecipient,
+  });
+
+  let text = typeof response === "string" ? response : response.content;
+
+  return text.trim();
 };
 
 // ------------------ CHAT ------------------

@@ -1,7 +1,14 @@
 import { useState } from 'react';
-import { MessageSquare, Plus, Sparkles, LogOut, Trash2, X, Check } from 'lucide-react';
+import { MessageSquare, Plus, Sparkles, LogOut, Trash2, X, Check, Bot, Mail, MessageCircle } from 'lucide-react';
 import { useChatStore } from '../store/useChatStore';
 import { useAuthStore } from '../store/useAuthStore';
+
+/* ─── Capability Pills (shown below New Chat button) ─── */
+const CAPABILITIES = [
+  { icon: <Bot size={12} />, label: 'Chat AI', color: '#7C3AED' },
+  { icon: <Mail size={12} />, label: 'Email', color: '#FF6A00' },
+  { icon: <MessageCircle size={12} />, label: 'WhatsApp', color: '#22C55E' },
+];
 
 const Sidebar = () => {
   const {
@@ -15,7 +22,7 @@ const Sidebar = () => {
   const { user, logout } = useAuthStore();
 
   const handleSelectConv = (id) => {
-    if (deletingId) return; // prevent click when confirming delete
+    if (deletingId) return;
     useChatStore.setState({ activeConversationId: id });
   };
 
@@ -34,7 +41,7 @@ const Sidebar = () => {
     deleteConversation(id);
   };
 
-  // Group conversations by date
+  /* ─── Group conversations by date ─── */
   const today = new Date();
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
@@ -46,7 +53,6 @@ const Sidebar = () => {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
-  // Simple grouping by day label
   const grouped = conversations.reduce((acc, conv) => {
     const label = formatGroup(conv.createdAt);
     if (!acc[label]) acc[label] = [];
@@ -68,10 +74,28 @@ const Sidebar = () => {
 
       {/* New Chat Button */}
       <div className="sidebar-actions">
-        <button onClick={() => clearActiveConversation()} className="new-chat-btn">
+        <button
+          onClick={() => clearActiveConversation()}
+          className="new-chat-btn"
+          id="new-chat-btn"
+        >
           <Plus size={16} />
           <span>New Chat</span>
         </button>
+      </div>
+
+      {/* Capability Pills */}
+      <div className="sidebar-capabilities">
+        {CAPABILITIES.map((cap) => (
+          <div
+            key={cap.label}
+            className="capability-pill"
+            style={{ '--pill-color': cap.color }}
+          >
+            <span className="pill-icon">{cap.icon}</span>
+            <span>{cap.label}</span>
+          </div>
+        ))}
       </div>
 
       {/* Conversations List */}
@@ -132,9 +156,7 @@ const Sidebar = () => {
       <div className="sidebar-footer">
         <div className="user-profile">
           <div className="user-info">
-            <div className="avatar">
-              {user?.name?.charAt(0).toUpperCase()}
-            </div>
+            <div className="avatar">{user?.name?.charAt(0).toUpperCase()}</div>
             <div className="user-details">
               <span className="user-name">{user?.name}</span>
               <span className="user-email">{user?.email}</span>

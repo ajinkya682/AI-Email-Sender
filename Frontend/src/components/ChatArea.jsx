@@ -1,24 +1,49 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Mail, Zap, Globe, FileText, ArrowRight } from 'lucide-react';
+import { Send, Mail, MessageCircle, Bot, Zap, ArrowRight, Sparkles } from 'lucide-react';
 import { useChatStore } from '../store/useChatStore';
 import MessageBubble from './MessageBubble';
 
+/* ─── Capability Feature Badges ─── */
+const CAPABILITY_BADGES = [
+  { icon: <Bot size={13} />, label: 'Chat AI', color: '#7C3AED' },
+  { icon: <Mail size={13} />, label: 'Send Email', color: '#FF6A00' },
+  { icon: <MessageCircle size={13} />, label: 'WhatsApp', color: '#22C55E' },
+];
+
+/* ─── Suggestion Chips ─── */
 const SUGGESTION_CHIPS = [
-  { icon: <Mail size={14} />, text: 'Send an email to john@example.com about our Q1 results' },
-  { icon: <Globe size={14} />, text: 'Research and email me about the latest AI trends' },
-  { icon: <FileText size={14} />, text: 'Draft a professional follow-up email for a job interview' },
-  { icon: <Zap size={14} />, text: 'What can you help me with?' },
+  {
+    icon: <Mail size={14} />,
+    text: 'Send an email to john@example.com about our Q1 results',
+    color: '#FF6A00',
+  },
+  {
+    icon: <MessageCircle size={14} />,
+    text: 'Send a WhatsApp message to +1234567890 confirming our meeting',
+    color: '#22C55E',
+  },
+  {
+    icon: <Bot size={14} />,
+    text: 'Research and email me the latest AI trends from the web',
+    color: '#7C3AED',
+  },
+  {
+    icon: <Zap size={14} />,
+    text: 'Draft a professional follow-up email for a job interview',
+    color: '#FF6A00',
+  },
 ];
 
 const ChatArea = () => {
   const [input, setInput] = useState('');
-  const { messages, sendMessage, isLoading, activeConversationId, conversations } = useChatStore();
+  const { messages, sendMessage, isLoading, activeConversationId, conversations } =
+    useChatStore();
   const messagesEndRef = useRef(null);
   const messagesAreaRef = useRef(null);
   const textareaRef = useRef(null);
   const [isNearBottom, setIsNearBottom] = useState(true);
 
-  const activeConversation = conversations.find(c => c._id === activeConversationId);
+  const activeConversation = conversations.find((c) => c._id === activeConversationId);
 
   const scrollToBottom = (force = false) => {
     if (force || isNearBottom) {
@@ -32,14 +57,12 @@ const ChatArea = () => {
     setIsNearBottom(scrollHeight - scrollTop - clientHeight < 120);
   };
 
-  // Reset scroll when conversation changes
   useEffect(() => {
     if (messagesAreaRef.current) {
       messagesAreaRef.current.scrollTop = messagesAreaRef.current.scrollHeight;
     }
   }, [activeConversationId]);
 
-  // Auto-scroll on new messages
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
@@ -68,7 +91,6 @@ const ChatArea = () => {
 
   const handleTextareaChange = (e) => {
     setInput(e.target.value);
-    // Auto-resize
     e.target.style.height = 'auto';
     e.target.style.height = Math.min(e.target.scrollHeight, 200) + 'px';
   };
@@ -82,7 +104,7 @@ const ChatArea = () => {
             {activeConversation?.title || 'Conversation'}
           </span>
           <span className="chat-header-badge">
-            {messages.filter(m => !m.loading).length} messages
+            {messages.filter((m) => !m.loading).length} messages
           </span>
         </div>
       )}
@@ -91,21 +113,42 @@ const ChatArea = () => {
       {messages.length === 0 ? (
         <div className="empty-state">
           <div className="empty-state-inner">
+
+            {/* Capability badges */}
+            <div className="capability-badges">
+              {CAPABILITY_BADGES.map((badge) => (
+                <div
+                  key={badge.label}
+                  className="capability-badge"
+                  style={{ '--badge-color': badge.color }}
+                >
+                  <span className="capability-badge-icon">{badge.icon}</span>
+                  <span>{badge.label}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Icon + Title */}
             <div className="mail-icon-bg">
-              <Mail size={32} />
+              <Sparkles size={30} />
             </div>
             <h2 className="empty-title">How can I help you today?</h2>
             <p className="empty-subtitle">
-              Ask anything, or command me to research and send professional emails in seconds.
+              Ask anything, send emails, or dispatch WhatsApp messages — all by just chatting.
             </p>
+
+            {/* Suggestion Chips */}
             <div className="suggestion-chips">
               {SUGGESTION_CHIPS.map((chip, i) => (
                 <button
                   key={i}
                   className="suggestion-chip"
                   onClick={() => handleChipClick(chip.text)}
+                  style={{ '--chip-color': chip.color }}
                 >
-                  {chip.icon}
+                  <span className="chip-icon" style={{ color: chip.color }}>
+                    {chip.icon}
+                  </span>
                   <span>{chip.text}</span>
                   <ArrowRight size={12} className="chip-arrow" />
                 </button>
@@ -135,14 +178,16 @@ const ChatArea = () => {
             value={input}
             onChange={handleTextareaChange}
             onKeyDown={handleKeyDown}
-            placeholder="Ask anything or say 'Send an email to...'"
+            placeholder="Ask anything, send an email, or message via WhatsApp…"
             rows={1}
             className="chat-input"
+            id="chat-input-textarea"
           />
           <button
             type="submit"
             disabled={!input.trim() || isLoading}
             className="send-btn"
+            id="chat-send-btn"
           >
             <Send size={16} />
           </button>

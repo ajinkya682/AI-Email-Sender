@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { MessageSquare, Plus, Sparkles, LogOut, Trash2, X, Check, Bot, Mail, MessageCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { MessageSquare, Plus, Sparkles, LogOut, Trash2, X, Check, Bot, Mail, MessageCircle, Crown } from 'lucide-react';
 import { useChatStore } from '../store/useChatStore';
 import { useAuthStore } from '../store/useAuthStore';
 
@@ -11,6 +12,7 @@ const CAPABILITIES = [
 ];
 
 const Sidebar = () => {
+  const navigate = useNavigate();
   const {
     conversations,
     activeConversationId,
@@ -64,11 +66,11 @@ const Sidebar = () => {
     <aside className="sidebar">
       {/* Header */}
       <div className="sidebar-header">
-        <div className="logo">
+        <div className="logo" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}>
           <div className="logo-icon">
             <Sparkles size={16} />
           </div>
-          <span className="logo-text">AI Assistant</span>
+          <span className="logo-text">OmniPilot AI</span>
         </div>
       </div>
 
@@ -155,11 +157,17 @@ const Sidebar = () => {
       {/* Footer */}
       <div className="sidebar-footer">
         <div className="user-profile">
-          <div className="user-info">
+          <div className="user-info" onClick={() => navigate('/profile')} style={{ cursor: 'pointer' }} title="Go to Profile">
             <div className="avatar">{user?.name?.charAt(0).toUpperCase()}</div>
             <div className="user-details">
               <span className="user-name">{user?.name}</span>
-              <span className="user-email">{user?.email}</span>
+              <span className="user-email">
+                {user?.plan === 'pro' || user?.plan === 'business' ? (
+                  <span className="sidebar-plan-badge"><Crown size={10} style={{ marginRight: 2 }} /> {user?.plan.toUpperCase()}</span>
+                ) : (
+                  user?.email
+                )}
+              </span>
             </div>
           </div>
           <button onClick={logout} className="logout-btn" title="Logout">

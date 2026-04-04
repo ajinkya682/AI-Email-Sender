@@ -1,397 +1,306 @@
-import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, useInView } from 'framer-motion';
-import {
-  Sparkles,
-  Mail,
-  MessageCircle,
-  Bot,
-  ArrowRight,
-  Zap,
-  Shield,
-  Globe,
-  CheckCircle,
-  ChevronRight,
-} from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Sparkles, MessageSquare, Mail, MessageCircle, ArrowRight, CheckCircle, Zap, Shield, PlayCircle } from 'lucide-react';
 import './LandingPage.scss';
 
-/* ─── Animation Variants ──────────────────────────── */
+/* ─── Animation Variants ─── */
 const fadeUp = {
-  hidden: { opacity: 0, y: 32 },
-  visible: (delay = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] },
-  }),
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
 };
 
 const staggerContainer = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.12 } },
-};
-
-const cardVariant = {
-  hidden: { opacity: 0, y: 40, scale: 0.96 },
+  hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
+    transition: { staggerChildren: 0.15 },
   },
 };
 
-/* ─── Data ────────────────────────────────────────── */
+/* ─── Data Arrays ─── */
 const FEATURES = [
   {
-    id: 'chat',
-    icon: <Bot size={28} />,
+    icon: <Sparkles size={24} />,
+    title: 'Intelligent Chat',
+    desc: 'Not just chit-chat. A highly capable partner that writes, researches, and understands your exact context.',
     color: '#7C3AED',
-    glow: 'rgba(124, 58, 237, 0.25)',
-    tag: 'AI Chat',
-    title: 'Chat with AI',
-    description:
-      'Have natural conversations with a state-of-the-art AI assistant. Ask questions, get summaries, brainstorm ideas, and more — all in real time.',
-    bullets: ['Context-aware conversations', 'Markdown-rich responses', 'Conversation history'],
   },
   {
-    id: 'email',
-    icon: <Mail size={28} />,
+    icon: <Mail size={24} />,
+    title: 'Email Automation',
+    desc: 'Draft and send professional emails instantly without leaving the chat interface. Connects right to your Gmail.',
     color: '#FF6A00',
-    glow: 'rgba(255, 106, 0, 0.25)',
-    tag: 'Email',
-    title: 'Send Smart Emails',
-    description:
-      'Just tell the AI who to email and why. It researches, drafts a professional HTML email, and sends it — all in one command.',
-    bullets: ['AI-drafted professional emails', 'Web-research powered content', 'Instant delivery'],
   },
   {
-    id: 'whatsapp',
-    icon: <MessageCircle size={28} />,
+    icon: <MessageCircle size={24} />,
+    title: 'WhatsApp Dispatch',
+    desc: 'Message clients or team members directly on WhatsApp. Just tell the AI what to send and to whom.',
     color: '#22C55E',
-    glow: 'rgba(34, 197, 94, 0.25)',
-    tag: 'WhatsApp',
-    title: 'Send WhatsApp Messages',
-    description:
-      'Send WhatsApp messages to any number just by chatting. The AI composes the perfect message and delivers it via the official Meta API.',
-    bullets: ['Meta Cloud API powered', 'AI-crafted messages', 'Works with any number'],
   },
 ];
 
-const STEPS = [
+const PRICING = [
   {
-    number: '01',
-    title: 'Sign up for free',
-    description: 'Create your account in seconds. No credit card required.',
+    name: 'Free Plan',
+    price: '$0',
+    desc: 'Perfect to try out OmniPilot AI.',
+    features: ['20 messages / day', 'Basic AI Context', '7-day chat history', 'Community support'],
+    cta: 'Get Started Free',
+    popular: false,
   },
   {
-    number: '02',
-    title: 'Type your request',
-    description: 'Tell the AI what you want in plain English — no special commands needed.',
+    name: 'Pro Plan',
+    price: '$19',
+    period: '/mo',
+    desc: 'For professionals who want to automate.',
+    features: ['Unlimited chat messages', 'Send Emails via AI', 'Send WhatsApp via AI', 'Unlimited chat history', 'Priority email support'],
+    cta: 'Upgrade to Pro',
+    popular: true,
   },
   {
-    number: '03',
-    title: 'Let AI handle it',
-    description: 'The AI researches, drafts, and sends — you just sit back.',
+    name: 'Business Plan',
+    price: '$49',
+    period: '/mo',
+    desc: 'For teams and high-volume workflows.',
+    features: ['Everything in Pro', 'API access (soon)', 'Team accounts (soon)', 'Advanced automation rules', 'Dedicated account manager'],
+    cta: 'Contact Sales',
+    popular: false,
   },
 ];
 
-const TRUST_BADGES = [
-  { icon: <Zap size={16} />, label: 'Instant Delivery' },
-  { icon: <Shield size={16} />, label: 'Secure & Private' },
-  { icon: <Globe size={16} />, label: 'Works Worldwide' },
-  { icon: <CheckCircle size={16} />, label: 'No Setup Required' },
+const TESTIMONIALS = [
+  {
+    quote: "OmniPilot AI isn't just another chatbot. It actually sends emails to my clients while I'm still talking to it. Incredible.",
+    name: "Sarah Jenkins",
+    role: "Freelance Designer",
+    avatar: "SJ"
+  },
+  {
+    quote: "We replaced three different tools with this. Now I just tell the AI what WhatsApp message to send, and it's done.",
+    name: "Michael Chen",
+    role: "Sales Director",
+    avatar: "MC"
+  },
+  {
+    quote: "The speed at which it drafts and fires off emails is staggering. It's like having a real executive assistant.",
+    name: "Elena Rodriguez",
+    role: "Startup Founder",
+    avatar: "ER"
+  }
 ];
 
-/* ─── Sub-Components ──────────────────────────────── */
-const SectionWrapper = ({ children, className = '' }) => {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: '-80px' });
-
-  return (
-    <motion.div
-      ref={ref}
-      initial="hidden"
-      animate={inView ? 'visible' : 'hidden'}
-      variants={staggerContainer}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
-};
-
-/* ─── Main Component ──────────────────────────────── */
 const LandingPage = () => {
   const navigate = useNavigate();
 
-  // Floating orbs parallax effect
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      const orbs = document.querySelectorAll('.orb');
-      const { clientX, clientY } = e;
-      const cx = window.innerWidth / 2;
-      const cy = window.innerHeight / 2;
-      orbs.forEach((orb, i) => {
-        const factor = (i + 1) * 0.015;
-        orb.style.transform = `translate(${(clientX - cx) * factor}px, ${(clientY - cy) * factor}px)`;
-      });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-
   return (
-    <div className="landing">
-      {/* ── Ambient background ── */}
-      <div className="landing-bg">
-        <div className="orb orb-1" />
-        <div className="orb orb-2" />
-        <div className="orb orb-3" />
-        <div className="grid-overlay" />
-      </div>
-
-      {/* ════════════════ NAVBAR ════════════════ */}
-      <nav className="landing-nav">
-        <div className="nav-inner">
-          <div className="nav-logo">
-            <div className="nav-logo-icon">
-              <Sparkles size={18} />
-            </div>
-            <span className="nav-logo-text">AI Assistant</span>
-          </div>
-          <div className="nav-actions">
-            <button
-              className="nav-btn nav-btn-ghost"
-              onClick={() => navigate('/auth')}
-              id="nav-login-btn"
-            >
-              Sign In
-            </button>
-            <button
-              className="nav-btn nav-btn-primary"
-              onClick={() => navigate('/auth')}
-              id="nav-signup-btn"
-            >
-              Get Started <ArrowRight size={14} />
-            </button>
-          </div>
+    <div className="landing-page">
+      {/* ── Navbar ── */}
+      <nav className="navbar">
+        <div className="nav-brand">
+          <div className="brand-icon"><Sparkles size={18} /></div>
+          <span>OmniPilot AI</span>
+        </div>
+        <div className="nav-links">
+          <a href="#features">Features</a>
+          <a href="#pricing">Pricing</a>
+          <button className="nav-login" onClick={() => navigate('/auth')}>Sign In</button>
+          <button className="nav-cta" onClick={() => navigate('/auth')}>Get Started</button>
         </div>
       </nav>
 
-      {/* ════════════════ HERO ════════════════ */}
-      <section className="hero-section">
-        <div className="hero-inner">
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={staggerContainer}
-            className="hero-content"
-          >
-            {/* Pill badge */}
-            <motion.div variants={fadeUp} custom={0} className="hero-badge">
-              <Sparkles size={12} />
-              <span>AI-Powered Productivity Suite</span>
-            </motion.div>
-
-            {/* Headline */}
-            <motion.h1 variants={fadeUp} custom={0.1} className="hero-title">
-              Chat, Email &amp;{' '}
-              <span className="hero-title-gradient">WhatsApp</span>
-              <br />
-              — all with one AI
-            </motion.h1>
-
-            {/* Subheading */}
-            <motion.p variants={fadeUp} custom={0.22} className="hero-subtitle">
-              Your intelligent assistant that sends emails, WhatsApp messages, and answers
-              questions — just by having a conversation.
-            </motion.p>
-
-            {/* CTAs */}
-            <motion.div variants={fadeUp} custom={0.32} className="hero-ctas">
-              <button
-                className="cta-btn cta-primary"
-                onClick={() => navigate('/auth')}
-                id="hero-get-started-btn"
-              >
-                <Sparkles size={16} />
-                Get Started Free
-                <ArrowRight size={16} />
-              </button>
-              <button
-                className="cta-btn cta-ghost"
-                onClick={() => {
-                  document.getElementById('features-section').scrollIntoView({ behavior: 'smooth' });
-                }}
-                id="hero-see-features-btn"
-              >
-                See Features <ChevronRight size={16} />
-              </button>
-            </motion.div>
-
-            {/* Trust badges */}
-            <motion.div variants={fadeUp} custom={0.42} className="trust-badges">
-              {TRUST_BADGES.map((b) => (
-                <div key={b.label} className="trust-badge">
-                  {b.icon}
-                  <span>{b.label}</span>
-                </div>
-              ))}
-            </motion.div>
+      {/* ── Hero Section ── */}
+      <header className="hero">
+        <div className="hero-glow hero-glow-1"></div>
+        <div className="hero-glow hero-glow-2"></div>
+        
+        <motion.div className="hero-content" initial="hidden" animate="visible" variants={staggerContainer}>
+          <motion.div className="hero-badge" variants={fadeUp}>
+            <Zap size={14} className="badge-icon" />
+            <span>OmniPilot AI 2.0 is now live</span>
           </motion.div>
+          
+          <motion.h1 variants={fadeUp}>
+            AI that doesn't just answer — <br />
+            <span className="text-gradient">it acts.</span>
+          </motion.h1>
+          
+          <motion.p className="hero-desc" variants={fadeUp}>
+            The command center for your digital life. Chat with an intelligent agent that can research, draft, and actually <strong>send emails and WhatsApp messages</strong> for you.
+          </motion.p>
+          
+          <motion.div className="hero-buttons" variants={fadeUp}>
+            <button className="btn-primary" onClick={() => navigate('/auth')}>
+              Start for free <ArrowRight size={16} />
+            </button>
+            <button className="btn-secondary" onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}>
+              <PlayCircle size={16} /> How it works
+            </button>
+          </motion.div>
+          
+          <motion.div className="hero-trust" variants={fadeUp}>
+            <Shield size={14} /> <span>No credit card required. Secure & private.</span>
+          </motion.div>
+        </motion.div>
 
-          {/* Hero visual — floating chat bubble mockup */}
-          <motion.div
-            initial={{ opacity: 0, x: 60, scale: 0.94 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            transition={{ duration: 0.9, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="hero-visual"
-          >
-            <div className="chat-mockup">
-              <div className="mockup-header">
-                <div className="mockup-dots">
-                  <span /><span /><span />
+        {/* Hero Visual Match */}
+        <motion.div className="hero-visual" initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.8 }}>
+          <div className="browser-mockup">
+            <div className="mockup-header">
+              <div className="dots"><span /><span /><span /></div>
+              <div className="url-bar">omnipilot.ai/app</div>
+            </div>
+            <div className="mockup-body">
+              <div className="mockup-sidebar"></div>
+              <div className="mockup-chat">
+                <div className="mockup-msg user">Send an email to John confirming the meeting at 3 PM.</div>
+                <div className="mockup-msg ai">
+                  <p>Drafted the email for John. Shall I send it?</p>
+                  <div className="mockup-action-badge"><Mail size={12}/> Email sent successfully</div>
                 </div>
-                <div className="mockup-title">AI Assistant</div>
-              </div>
-              <div className="mockup-messages">
-                <div className="mock-msg user">Send an email to alex@company.com about our Q1 results</div>
-                <div className="mock-msg ai">
-                  <div className="mock-ai-avatar"><Sparkles size={12} /></div>
-                  <div className="mock-ai-text">
-                    I've researched your Q1 results and drafted a professional email. Sending now...
-                    <div className="mock-badge email-badge">
-                      <CheckCircle size={12} /> Email Sent Successfully
-                    </div>
-                  </div>
-                </div>
-                <div className="mock-msg user">Now send a WhatsApp to +91 98XX XXXXX saying we hit targets</div>
-                <div className="mock-msg ai">
-                  <div className="mock-ai-avatar"><Sparkles size={12} /></div>
-                  <div className="mock-ai-text">
-                    Message sent to the number!
-                    <div className="mock-badge whatsapp-badge">
-                      <CheckCircle size={12} /> WhatsApp Sent Successfully
-                    </div>
-                  </div>
-                </div>
-                <div className="mock-typing">
-                  <div className="mock-ai-avatar"><Sparkles size={12} /></div>
-                  <div className="typing-dots"><span/><span/><span/></div>
+                <div className="mockup-msg user">Now send him a quick WhatsApp heads up.</div>
+                <div className="mockup-msg ai">
+                  <div className="mockup-action-badge whatsapp"><MessageCircle size={12}/> WhatsApp message delivered</div>
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
+        </motion.div>
+      </header>
+
+      {/* ── Features Section ── */}
+      <section className="features-section" id="features">
+        <div className="section-header">
+          <h2>One interface. <span className="text-gradient">Infinite capabilities.</span></h2>
+          <p>Stop jumping between tabs. Do everything from a single chat window.</p>
+        </div>
+
+        <div className="features-grid">
+          {FEATURES.map((feature, i) => (
+            <motion.div 
+              key={i} 
+              className="feature-card"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1, duration: 0.5 }}
+            >
+              <div className="feature-icon" style={{ color: feature.color, backgroundColor: `${feature.color}15`, borderColor: `${feature.color}30` }}>
+                {feature.icon}
+              </div>
+              <h3>{feature.title}</h3>
+              <p>{feature.desc}</p>
+            </motion.div>
+          ))}
         </div>
       </section>
 
-      {/* ════════════════ FEATURES ════════════════ */}
-      <section className="features-section" id="features-section">
-        <SectionWrapper className="features-inner">
-          <motion.div variants={fadeUp} className="section-label">
-            <Zap size={14} />
-            <span>CAPABILITIES</span>
-          </motion.div>
-          <motion.h2 variants={fadeUp} className="section-title">
-            Everything you need, in one chat
-          </motion.h2>
-          <motion.p variants={fadeUp} className="section-subtitle">
-            Three powerful tools. One intelligent interface. No switching between apps.
-          </motion.p>
-
-          <div className="features-grid">
-            {FEATURES.map((feature) => (
-              <motion.div
-                key={feature.id}
-                variants={cardVariant}
-                className="feature-card"
-                style={{ '--feature-color': feature.color, '--feature-glow': feature.glow }}
-                id={`feature-card-${feature.id}`}
-              >
-                <div className="feature-card-glow" />
-                <div className="feature-icon-wrap">
-                  <div className="feature-icon">{feature.icon}</div>
-                </div>
-                <div className="feature-tag">{feature.tag}</div>
-                <h3 className="feature-title">{feature.title}</h3>
-                <p className="feature-desc">{feature.description}</p>
-                <ul className="feature-bullets">
-                  {feature.bullets.map((b) => (
-                    <li key={b}>
-                      <CheckCircle size={13} />
-                      <span>{b}</span>
-                    </li>
-                  ))}
-                </ul>
-              </motion.div>
-            ))}
-          </div>
-        </SectionWrapper>
-      </section>
-
-      {/* ════════════════ HOW IT WORKS ════════════════ */}
-      <section className="how-section">
-        <SectionWrapper className="how-inner">
-          <motion.div variants={fadeUp} className="section-label">
-            <Bot size={14} />
-            <span>HOW IT WORKS</span>
-          </motion.div>
-          <motion.h2 variants={fadeUp} className="section-title">
-            From idea to action in seconds
-          </motion.h2>
-
-          <div className="steps-grid">
-            {STEPS.map((step, i) => (
-              <motion.div key={step.number} variants={cardVariant} className="step-card">
-                <div className="step-number">{step.number}</div>
-                {i < STEPS.length - 1 && <div className="step-connector" />}
-                <h3 className="step-title">{step.title}</h3>
-                <p className="step-desc">{step.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </SectionWrapper>
-      </section>
-
-      {/* ════════════════ CTA BANNER ════════════════ */}
-      <section className="cta-section">
-        <SectionWrapper className="cta-inner">
-          <motion.div variants={fadeUp} className="cta-card">
-            <div className="cta-card-glow" />
-            <motion.div variants={fadeUp} custom={0.1} className="cta-icon">
-              <Sparkles size={32} />
-            </motion.div>
-            <motion.h2 variants={fadeUp} custom={0.2} className="cta-title">
-              Ready to let AI do the heavy lifting?
-            </motion.h2>
-            <motion.p variants={fadeUp} custom={0.3} className="cta-subtitle">
-              Join thousands of users who automate their communication with AI.
-            </motion.p>
-            <motion.button
-              variants={fadeUp}
-              custom={0.4}
-              className="cta-btn cta-primary cta-large"
-              onClick={() => navigate('/auth')}
-              id="cta-get-started-btn"
-            >
-              <Sparkles size={18} />
-              Start for Free — No Credit Card
-              <ArrowRight size={18} />
-            </motion.button>
-          </motion.div>
-        </SectionWrapper>
-      </section>
-
-      {/* ════════════════ FOOTER ════════════════ */}
-      <footer className="landing-footer">
-        <div className="footer-inner">
-          <div className="footer-logo">
-            <div className="nav-logo-icon">
-              <Sparkles size={14} />
+      {/* ── How It Works (Demo) ── */}
+      <section className="how-it-works" id="demo">
+        <div className="section-header">
+          <h2>How <span className="text-gradient">OmniPilot</span> Works</h2>
+          <p>Lightning fast workflows in three simple steps.</p>
+        </div>
+        
+        <div className="steps-container">
+          {[
+            { step: '01', title: 'Connect Accounts', desc: 'Securely link your Gmail and verify your phone number.' },
+            { step: '02', title: 'Type a Command', desc: 'Use natural English. "Email Sarah that the project is done."' },
+            { step: '03', title: 'AI Executes', desc: 'OmniPilot understands the intent, drafts, and sends instantly.' }
+          ].map((s, i) => (
+            <div className="step-card" key={i}>
+              <div className="step-number">{s.step}</div>
+              <h3>{s.title}</h3>
+              <p>{s.desc}</p>
             </div>
-            <span>AI Assistant</span>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Testimonials ── */}
+      <section className="testimonials-section">
+        <div className="section-header">
+          <h2>Loved by <span className="text-gradient">doers</span></h2>
+        </div>
+        <div className="testimonials-grid">
+          {TESTIMONIALS.map((t, i) => (
+            <div className="testimonial-card" key={i}>
+              <div className="stars">★★★★★</div>
+              <p>"{t.quote}"</p>
+              <div className="author">
+                <div className="t-avatar">{t.avatar}</div>
+                <div>
+                  <h4>{t.name}</h4>
+                  <span>{t.role}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Pricing Section ── */}
+      <section className="pricing-section" id="pricing">
+        <div className="section-header">
+          <h2>Simple, <span className="text-gradient">transparent pricing</span></h2>
+          <p>Start for free, upgrade when you need superpowers.</p>
+        </div>
+        
+        <div className="pricing-grid">
+          {PRICING.map((plan, i) => (
+            <div className={`pricing-card ${plan.popular ? 'popular' : ''}`} key={i}>
+              {plan.popular && <div className="popular-badge">Most Popular</div>}
+              <h3>{plan.name}</h3>
+              <p className="plan-desc">{plan.desc}</p>
+              <div className="price-wrap">
+                <span className="price">{plan.price}</span>
+                {plan.period && <span className="period">{plan.period}</span>}
+              </div>
+              <ul className="plan-features">
+                {plan.features.map((f, j) => (
+                  <li key={j}><CheckCircle size={16} /> {f}</li>
+                ))}
+              </ul>
+              <button 
+                className={plan.popular ? 'btn-primary' : 'btn-outline'}
+                onClick={() => navigate('/auth')}
+              >
+                {plan.cta}
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Footer ── */}
+      <footer className="footer">
+        <div className="footer-content">
+          <div className="footer-brand">
+            <div className="brand-icon"><Sparkles size={16} /></div>
+            <span>OmniPilot AI</span>
+            <p>The AI assistant that doesn't just talk, it acts.</p>
           </div>
-          <p className="footer-copy">© 2026 AI Assistant. Built with ❤️ and AI.</p>
+          <div className="footer-links">
+            <div className="link-col">
+              <h4>Product</h4>
+              <a href="#features">Features</a>
+              <a href="#pricing">Pricing</a>
+              <a href="#demo">How it works</a>
+            </div>
+            <div className="link-col">
+              <h4>Company</h4>
+              <a href="#!">About</a>
+              <a href="#!">Blog</a>
+              <a href="#!">Contact</a>
+            </div>
+            <div className="link-col">
+              <h4>Legal</h4>
+              <a href="#!">Privacy Policy</a>
+              <a href="#!">Terms of Service</a>
+            </div>
+          </div>
+        </div>
+        <div className="footer-bottom">
+          <p>© {new Date().getFullYear()} OmniPilot AI. All rights reserved.</p>
         </div>
       </footer>
     </div>

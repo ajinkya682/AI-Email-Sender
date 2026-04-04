@@ -1,0 +1,503 @@
+@use "../styles/variables" as *;
+
+/* ============================================================
+   PROFILE PAGE — OmniPilot AI
+   ============================================================ */
+.profile-page {
+  min-height: 100vh;
+  background-color: $surface;
+  color: $on-surface;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Toast ── */
+.profile-toast {
+  position: fixed;
+  top: $spacing-5;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  padding: 10px $spacing-5;
+  border-radius: $radius-md;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  white-space: nowrap;
+  z-index: 100;
+
+  &.success {
+    background: rgba($success, 0.12);
+    color: $success;
+    border: 1px solid rgba($success, 0.25);
+  }
+  &.error {
+    background: rgba($error, 0.12);
+    color: $error;
+    border: 1px solid rgba($error, 0.25);
+  }
+}
+
+/* ── Header ── */
+.profile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-4 $spacing-8;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba($surface, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  font-size: 0.875rem;
+  color: $on-surface-muted;
+  transition: $transition-fast;
+  &:hover { color: $on-surface; }
+}
+
+.profile-header-brand {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: $on-surface;
+
+  .brand-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: $gradient-primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+}
+
+/* ── Layout ── */
+.profile-content {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: $spacing-8;
+  max-width: 1100px;
+  width: 100%;
+  margin: $spacing-8 auto;
+  padding: 0 $spacing-8 $spacing-8;
+  flex: 1;
+
+  @media (max-width: 800px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Aside: Avatar Card ── */
+.profile-aside {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+}
+
+.avatar-card {
+  background: $surface-container-low;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 18px;
+  padding: $spacing-8 $spacing-6;
+  text-align: center;
+}
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: $gradient-primary;
+  color: white;
+  font-size: 1.75rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto $spacing-4;
+  box-shadow: 0 8px 28px rgba(255, 106, 0, 0.35);
+  letter-spacing: -0.02em;
+}
+
+.profile-name {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: $on-surface;
+  margin-bottom: 4px;
+  letter-spacing: -0.02em;
+}
+
+.profile-email-display {
+  font-size: 0.8125rem;
+  color: $on-surface-dim;
+  margin-bottom: $spacing-4;
+  word-break: break-all;
+}
+
+.plan-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-2;
+  padding: 5px $spacing-3;
+  border-radius: $radius-full;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background-color: color-mix(in srgb, var(--plan-color) 12%, transparent);
+  color: var(--plan-color);
+  border: 1px solid color-mix(in srgb, var(--plan-color) 22%, transparent);
+  margin-bottom: $spacing-5;
+}
+
+.profile-meta {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: $spacing-4;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  font-size: 0.8125rem;
+  color: $on-surface-dim;
+
+  svg { color: $on-surface-dim; flex-shrink: 0; }
+  strong { color: $on-surface-muted; }
+}
+
+/* ── Main: Tabs ── */
+.profile-main {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-5;
+}
+
+.profile-tabs {
+  display: flex;
+  gap: $spacing-2;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: $spacing-1;
+}
+
+.profile-tab {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  padding: $spacing-2 $spacing-4;
+  border-radius: $radius-sm;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: $on-surface-muted;
+  transition: $transition-fast;
+
+  &:hover { color: $on-surface; background: $surface-container; }
+
+  &.active {
+    color: $primary-container;
+    background: rgba($primary, 0.1);
+    border: 1px solid rgba($primary, 0.15);
+  }
+}
+
+/* ── Tab Panel ── */
+.tab-panel {
+  background: $surface-container-low;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 18px;
+  padding: $spacing-8;
+}
+
+.tab-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: $on-surface;
+  letter-spacing: -0.02em;
+  margin-bottom: $spacing-2;
+}
+
+.tab-subtitle {
+  font-size: 0.875rem;
+  color: $on-surface-muted;
+  margin-bottom: $spacing-6;
+}
+
+/* ── Info Grid (overview) ── */
+.info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+}
+
+.info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-4;
+  padding: $spacing-4;
+  background: $surface-container;
+  border-radius: $radius-md;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+
+  .info-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: $radius-sm;
+    background: rgba($primary, 0.08);
+    border: 1px solid rgba($primary, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $primary;
+    flex-shrink: 0;
+  }
+
+  .info-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: $on-surface-dim;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+
+  .info-value {
+    font-size: 0.9375rem;
+    color: $on-surface;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+  }
+}
+
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: $success;
+  background: rgba($success, 0.1);
+  border: 1px solid rgba($success, 0.2);
+  border-radius: $radius-full;
+  padding: 2px 8px;
+}
+
+.not-set {
+  color: $on-surface-dim;
+  font-style: italic;
+  font-size: 0.875rem;
+}
+
+/* ── Profile Form ── */
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-5;
+}
+
+.profile-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+
+  label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: $on-surface-muted;
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+  }
+
+  &.readonly label { color: $on-surface-dim; }
+}
+
+.readonly-badge {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: $on-surface-dim;
+  background: $surface-container-highest;
+  padding: 2px 8px;
+  border-radius: $radius-full;
+}
+
+.profile-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  .pinput-icon {
+    position: absolute;
+    left: $spacing-4;
+    color: $on-surface-dim;
+    pointer-events: none;
+  }
+
+  input {
+    width: 100%;
+    padding: $spacing-3 $spacing-4 $spacing-3 calc($spacing-4 + 28px);
+    background: $surface-container;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: $radius-sm;
+    color: $on-surface;
+    font-size: 0.9375rem;
+    outline: none;
+    transition: $transition-fast;
+
+    &::placeholder { color: $on-surface-dim; }
+    &:focus {
+      border-color: rgba($primary, 0.4);
+      box-shadow: 0 0 0 3px rgba($primary, 0.08);
+    }
+  }
+
+  &.disabled input {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .toggle-eye-btn {
+    position: absolute;
+    right: $spacing-3;
+    color: $on-surface-dim;
+    padding: 4px;
+    border-radius: $radius-xs;
+    transition: $transition-fast;
+    &:hover { color: $on-surface; }
+  }
+}
+
+.otp-hint {
+  font-size: 0.8125rem;
+  color: $on-surface-dim;
+}
+
+/* ── Profile OTP Inputs ── */
+.profile-otp-inputs {
+  display: flex;
+  gap: $spacing-2;
+}
+
+.profile-otp-box {
+  width: 46px;
+  height: 52px;
+  border-radius: $radius-sm;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: $surface-container;
+  color: $on-surface;
+  font-size: 1.375rem;
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+  transition: $transition-fast;
+
+  &:focus {
+    border-color: rgba($primary, 0.5);
+    box-shadow: 0 0 0 3px rgba($primary, 0.1);
+  }
+  &.filled {
+    border-color: rgba($primary, 0.35);
+    color: $primary-container;
+    background: rgba($primary, 0.06);
+  }
+}
+
+/* ── Save Button ── */
+.profile-save-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-2;
+  padding: $spacing-3 $spacing-6;
+  background: $gradient-primary;
+  color: white;
+  border-radius: $radius-sm;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  transition: $transition-fast;
+  box-shadow: 0 4px 16px rgba(255, 106, 0, 0.3);
+  align-self: flex-start;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 22px rgba(255, 106, 0, 0.45);
+  }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
+/* ── Security ── */
+.security-info-box {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-4;
+  background: $surface-container;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: $radius-md;
+  padding: $spacing-5;
+  margin-bottom: $spacing-5;
+
+  .security-icon { color: $primary; flex-shrink: 0; margin-top: 2px; }
+
+  strong { font-size: 0.9375rem; color: $on-surface; display: block; margin-bottom: $spacing-1; }
+  p { font-size: 0.8125rem; color: $on-surface-muted; line-height: 1.55; strong { display: inline; color: $on-surface; } }
+}
+
+.profile-error {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  font-size: 0.8125rem;
+  color: $error;
+  background: rgba($error, 0.08);
+  border: 1px solid rgba($error, 0.2);
+  border-radius: $radius-sm;
+  padding: $spacing-3 $spacing-4;
+}
+
+.btn-row {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+}
+
+.back-step-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+  color: $on-surface-muted;
+  padding: $spacing-3 $spacing-4;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: $radius-sm;
+  transition: $transition-fast;
+  &:hover { color: $on-surface; border-color: rgba(255,255,255,0.15); }
+}
+
+/* ── Spinner ── */
+.btn-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }

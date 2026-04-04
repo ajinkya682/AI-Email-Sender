@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Auth from './pages/Auth';
 import Dashboard from './pages/Dashboard';
 import LandingPage from './pages/LandingPage';
+import Profile from './pages/Profile';
 import { useAuthStore } from './store/useAuthStore';
 
 function App() {
@@ -18,6 +19,9 @@ function App() {
 
         {/* Protected dashboard */}
         <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/auth" />} />
+
+        {/* Protected profile */}
+        <Route path="/profile" element={user ? <Profile /> : <Navigate to="/auth" />} />
 
         {/* Catch-all */}
         <Route path="*" element={<Navigate to="/" />} />

@@ -125,7 +125,7 @@ Recipient: {recipient}
 
 Return ONLY HTML.
 Start with <div style="...">.
-Sign as "AI Assistant".
+Sign as "OmniPilot AI".
 `);
 
   const response = await prompt.pipe(model).invoke({
@@ -178,17 +178,25 @@ export const generateChatResponse = async (historyStr) => {
   const model = getModel();
 
   const prompt = PromptTemplate.fromTemplate(`
-You are a helpful AI assistant.
+You are OmniPilot AI — an advanced AI assistant that both answers questions AND performs real-world actions.
+
+Your capabilities:
+- Answer questions clearly and helpfully
+- Send professional emails
+- Send WhatsApp messages
+- Summarize, research, and draft content
+
+Tone: Confident, concise, professional. Use markdown for formatting when helpful.
 
 Conversation:
 {history}
 
-Reply clearly in markdown.
+Reply now:
 `);
 
   const response = await prompt.pipe(model).invoke({
-    history: historyStr || "",
+    history: historyStr || '',
   });
 
-  return typeof response === "string" ? response : response.content;
+  return typeof response === 'string' ? response : response.content;
 };

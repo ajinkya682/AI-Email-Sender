@@ -132,7 +132,7 @@ const ChatArea = () => {
             <div className="mail-icon-bg">
               <Sparkles size={30} />
             </div>
-            <h2 className="empty-title">How can I help you today?</h2>
+            <h2 className="empty-title">I'm OmniPilot AI. What can I do for you today?</h2>
             <p className="empty-subtitle">
               Ask anything, send emails, or dispatch WhatsApp messages — all by just chatting.
             </p>
